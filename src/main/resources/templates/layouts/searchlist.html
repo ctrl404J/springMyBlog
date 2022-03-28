@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header.html">
+    <meta charset="utf-8">
+</head>
+<body>
+
+<div>
+<h3 style="text-align:center; padding:20px;" >검색결과</h3>
+</div>
+
+<table class="table-light table table-hover" style="width:65%; margin:auto;">
+    <caption style="caption-side:top;">
+        <div th:text="|검색결과수:${totalCount}|"></div>
+    </caption>
+    <thead>
+    <tr>
+        <th scope="col">번호</th>
+        <th scope="col">목록</th>
+        <th scope="col">이름</th>
+        <th scope="col">제목</th>
+        <th scope="col">날짜</th>
+        <th scope="col">조회수</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="list:${list}">
+        <th th:text="${list.content_idx}">Mark</th>
+        <th th:text="${list.board_num}">Mark</th>
+        <td th:text="${list.writer_name}">Mark</td>
+        <td><a th:text="${list.board_title}" th:href="@{/contentForm?content_idx={content_idx}(content_idx=${list.content_idx})}">Mark</a></td>
+        <td th:text="${#dates.format(list.board_date, 'yyyy-MM-dd HH:mm:ss')}">Mark</td>
+        <td th:text="${list.board_hit}">Mark</td>
+<!--        <a href="@{contentForm(content_idx=${list.content_idx})}"></a>-->
+    </tr>
+    <tr>
+        <caption th:with="boardNo=${list[1]}">
+            <nav aria-label="Page navigation example" style="width:20%; margin: auto;">
+                <ul class="pagination">
+
+                    <th:block th:if="${page}!=1">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{searchWord(page=${page-1}, searchWord=${searchWord})}">Prev</a>
+                        </li>
+                    </th:block>
+
+                    <th:block th:each="i:${#numbers.sequence(0, 4)}">
+                        <li class="page-item">
+                            <th:block th:if="${startPage+i}<=${endPage}">
+                                <a class="page-link"
+                                   th:href="@{searchWord(page=${startPage+i}, searchWord=${searchWord})}"
+                                   th:text="${startPage+i}">2</a>
+                            </th:block>
+
+                        </li>
+                    </th:block>
+
+                    <th:block th:if="${page} < ${endPage}">
+                        <li class="page-item">
+                            <a class="page-link" th:href="@{searchWord(page=${page+1}, searchWord=${searchWord})}">Next</a>
+                        </li>
+                    </th:block>
+                </ul>
+            </nav>
+        </caption>
+    </tr>
+    </tbody>
+</table>
+</body>
+<footer th:replace="fragments/footer.html"></footer>
+</html>

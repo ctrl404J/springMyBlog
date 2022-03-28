@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header.html">
+    <meta charset="utf-8">
+</head>
+<body>
+<h3 style="text-align:center; padding:20px;">글쓰기</h3>
+<div style="width:50%; margin: auto;">
+<form action="writeForm" method="POST">
+    <div class="mb-3">
+        <label for="board_num" class="form-label">메뉴:</label>
+        <select class="form-select" aria-label="Default select example" id="board_num" name="board_num">
+            <option value="1">JAVA</option>
+            <option value="2">MYBATIS</option>
+            <option value="3">THYMELEAF</option>
+            <option value="4">SPRING</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="writer_name" class="form-label">이름:</label>
+        <input type="text" class="form-control" id="writer_name" name="writer_name" placeholder="이름을 입력하세요.">
+    </div>
+    <div class="mb-3">
+        <label for="board_title" class="form-label">제목:</label>
+        <input type="text" class="form-control" id="board_title" name="board_title" placeholder="제목을 입력하세요.">
+    </div>
+    <div class="mb-3">
+        <label for="board_content" class="form-label">내용:</label>
+        <textarea class="form-control" id="board_content" rows="8" name="board_content" placeholder="내용을 입력하세요."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">저장</button>
+    <button type="button" class="btn btn-primary" onclick="location.href='javascript:history.back();'">취소</button>
+</form>
+</div>
+</body>
+<footer th:replace="fragments/footer.html"></footer>
+</html>

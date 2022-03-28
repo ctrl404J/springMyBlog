@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blog.myBlog.dao.IBlogDao">
+
+    <!-- 총 글수 -->
+    <select id="totalCount" resultType="Integer">
+        SELECT COUNT(*) FROM BOARD WHERE BOARD_NUM=#{PARAM1}
+    </select>
+
+    <!-- 게시판 이름 찾기-->
+    <select id="searchBoardName" resultType="String">
+        SELECT BOARD_NAME FROM BOARDLIST
+        WHERE BOARD_ID=#{BOARD_NUM}
+    </select>
+
+    <!--글쓰기-->
+    <insert id="write">
+        INSERT INTO BOARD(CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT)
+        VALUES(BOARD_SEQ.NEXTVAL, #{board_num}, #{writer_name}, #{board_title}, #{board_content})
+    </insert>
+
+    <!--상세정보-->
+    <select id="contentForm" resultType="com.blog.myBlog.dto.BlogDto">
+        SELECT * FROM BOARD WHERE CONTENT_IDX=#{param1}
+    </select>
+
+    <!--글수정-->
+    <update id="contentUpdate">
+        UPDATE BOARD SET BOARD_NUM=#{board_num}, WRITER_NAME=#{writer_name}, BOARD_TITLE=#{board_title}, BOARD_CONTENT=#{board_content}
+        WHERE CONTENT_IDX=#{content_idx}
+    </update>
+    <delete id="deleteAction">
+        DELETE FROM BOARD WHERE CONTENT_IDX=#{content_idx}
+    </delete>
+
+    <!--검색-->
+    <select id="searchWord" resultType="com.blog.myBlog.dto.BlogDto">
+        SELECT CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT, BOARD_DATE, BOARD_HIT
+        FROM(SELECT /*+INDEX_DESC(BOARD) */ ROWNUM AS RN, BOARD.* FROM BOARD
+        WHERE WRITER_NAME LIKE '%'||#{param1}||'%' OR BOARD_TITLE LIKE '%'||#{param1}||'%' OR BOARD_CONTENT LIKE '%'||#{param1}||'%')
+        WHERE RN BETWEEN #{param2} AND #{param3}
+    </select>
+    <!--검색 총글수 -->
+    <select id="searchCount" resultType="int">
+        SELECT COUNT(*) FROM BOARD
+        WHERE WRITER_NAME LIKE '%'||#{searchWord}||'%' OR BOARD_TITLE LIKE '%'||#{searchWord}||'%' OR BOARD_CONTENT LIKE '%'||#{searchWord}||'%'
+        ORDER BY CONTENT_IDX DESC
+    </select>
+    <!-- -->
+
+    <!-- 조회수 증가-->
+    <update id="hit">
+        UPDATE BOARD SET BOARD_HIT=BOARD_HIT+1 WHERE CONTENT_IDX=#{CONTENT_IDX}
+    </update>
+
+    <!-- 페이징을 넣고 게시글 목록-->
+    <select id="PagingContent" resultType="com.blog.myBlog.dto.BlogDto">
+    SELECT CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT, BOARD_DATE, BOARD_HIT
+    FROM(SELECT /*+INDEX_DESC(BOARD) */ ROWNUM AS RN, BOARD.* FROM BOARD WHERE BOARD_NUM=#{param1})A
+    WHERE RN BETWEEN #{param2} AND #{param3}
+    </select>
+</mapper>

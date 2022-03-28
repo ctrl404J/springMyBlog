@@ -1,0 +1,153 @@
+DROP TABLE BOARD;
+
+        -- 게시판 컨텐츠 테이블 생성
+        -- 기본키, 작성자이름, 제목, 내용, 작성일, 조회수
+        CREATE TABLE BOARD(
+        CONTENT_IDX   NUMBER(10) PRIMARY KEY NOT NULL,
+        BOARD_NUM     NUMBER(5) NOT NULL,
+        WRITER_NAME   VARCHAR2(20) NOT NULL,
+        BOARD_TITLE   VARCHAR2(100) NOT NULL,
+        BOARD_CONTENT VARCHAR2(1000) NOT NULL,
+        BOARD_DATE    DATE DEFAULT SYSDATE,
+        BOARD_HIT     NUMBER(10) DEFAULT 0
+        );
+
+
+        DROP TABLE BOARDLIST;
+        -- 게시판 메뉴리스트 테이블 생성
+        CREATE TABLE BOARDLIST(
+        BOARD_ID NUMBER(5) PRIMARY KEY NOT NULL,
+        BOARD_NAME VARCHAR2(30) NOT NULL
+        );
+
+        -- 프라이머리키와 외래키를 설정해서 두 테이블을 연결지어준다.
+        ALTER TABLE BOARD ADD CONSTRAINT CON_PK PRIMARY KEY(CON_NUM);
+
+        ALTER TABLE BOARD ADD CONSTRAINT CON_FK FOREIGN KEY(BOARD_NUM) REFERENCES BOARDLIST(BOARD_ID);
+
+
+        -- 기존 컨텐츠보드 시퀀스 삭제 및 새로생성.
+        DROP SEQUENCE BOARD_SEQ;
+        CREATE SEQUENCE BOARD_SEQ;
+        -- 게시판리스트 시퀀스 삭제 및 새로생성
+        DROP SEQUENCE BOARDLIST_SEQ;
+        CREATE SEQUENCE BOARDLIST_SEQ;
+
+        -- 컨텐츠 데이터 추가
+        --------------------------------------------------------------------------------------------------
+        -- 유저 테이블 생성------------------------------
+        DROP TABLE USERLIST;
+
+        CREATE TABLE USERLIST(
+        USER_IDX NUMBER(10) PRIMARY KEY NOT NULL,
+        USER_ID VARCHAR2(30) UNIQUE NOT NULL,
+        USER_NAME VARCHAR2(50) NOT NULL,
+        USER_PASS VARCHAR2(40) NOT NULL,
+        USER_Q VARCHAR2(100) NOT NULL,
+        USER_A VARCHAR2(50) NOT NULL,
+        USER_CONTENT_IDX NUMBER(10)
+        );
+
+        ALTER TABLE USERLIST ADD CONSTRAINT USER_FK FOREIGN KEY(USER_CONTENT_IDX) REFERENCES BOARD(CONTENT_IDX);
+
+        INSERT INTO USERLIST(USER_IDX, USER_ID, USER_NAME, USER_PASS, USER_Q, USER_A)
+        VALUES(USER_SEQ.NEXTVAL, 'hong2345', '홍길서', 'abcd234', '좋아하는 색상은?', '파란색');
+
+        SELECT * FROM USERLIST
+        WHERE USER_Q='좋아하는 색상은?' AND USER_A='파란색';
+
+        SELECT USER_PASS FROM USERLIST
+        WHERE USER_A='파란색' AND USER_ID='hong2345' AND USER_NAME='홍길서';
+        --------------------------------------------------------------------------------------------------
+        DROP TABLE REPLY;
+        -- 댓글 테이블 생성
+        -- REPLY_BOARD_IDX : 외래키 - 다른 테이블의 인덱스키를 가지고 있음.
+        CREATE TABLE REPLY(
+        REPLY_IDX NUMBER(10) PRIMARY KEY NOT NULL,
+        REPLY_NAME VARCHAR2(100) NOT NULL,
+        REPLY_CONTENT VARCHAR2(800) NOT NULL,
+        REPLY_DATE DATE DEFAULT SYSDATE,
+        REPLY_BOARD_IDX NUMBER(10) NOT NULL
+        );
+
+        ALTER TABLE REPLY ADD CONSTRAINT RE_FK FOREIGN KEY(REPLY_BOARD_IDX) REFERENCES BOARD(CONTENT_IDX);
+
+        -- 댓글 시퀀스 생성
+        DROP SEQUENCE REPLY_BOARD_SEQ;
+        CREATE SEQUENCE REPLY_BOARD_SEQ;
+
+        --댓글
+        SELECT * FROM BOARD WHERE REPLY_BOARD_IDX=1;
+
+        COMMIT;
+
+        INSERT INTO REPLY(REPLY_IDX, REPLY_NAME, REPLY_CONTENT, REPLY_BOARD_IDX)
+        VALUES(REPLY_BOARD_SEQ.NEXTVAL, '테스터', '좋아요!', 1);
+
+        UPDATE REPLY SET REPLY_CONTENT='댓글 수정을 테스트합니다.'
+        WHERE REPLY_IDX=90;
+        -----------------------------------------------------------------------------------
+        -- 게시판 리스트 넣어 준다.
+        INSERT INTO BOARDLIST(BOARD_ID, BOARD_NAME)
+        VALUES(BOARDLIST_SEQ.NEXTVAL, 'SPRING');
+
+        -- 게시판 글을 작성해 준다.
+        INSERT INTO BOARD(CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT)
+        VALUES(BOARD_SEQ.NEXTVAL, 3, '홍길동', '제목 없습니다.', ' 그냥 테스트글입니다.');
+
+        INSERT INTO BOARD(CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT)
+        VALUES(BOARD_SEQ.NEXTVAL, 4, '변사또', '테스트 글입니다.', '그냥 테스트글입니다.');
+        INSERT INTO BOARD(CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT)
+        VALUES(BOARD_SEQ.NEXTVAL, 1, '배추도사', '첫글입니다3.', '처음 쓰는 테스트글입니다.');
+
+        -- 게시판 글의 댓글을 달아준다.
+        INSERT INTO REPLY(REPLY_IDX, REPLY_NAME, REPLY_CONTENT, REPLY_BOARD_IDX)
+        VALUES(REPLY_BOARD_SEQ.NEXTVAL, '댓글다는여자1', '3번글 댓글답니다.', 3);
+
+        COMMIT;
+
+        -- 두개를 조인 시켜서 보드네임까지 조회 해와서 상세조회의 <SELECT>의 selected에 써야 될듯.
+    SELECT * FROM BOARD WHERE CONTENT_IDX=1 AND BOARD_NUM=1 ORDER BY BOARD_DATE DESC;
+    SELECT * FROM BOARD WHERE BOARD_NUM=1;
+
+    -- 글 수정
+    UPDATE BOARD SET BOARD_NUM=1, WRITER_NAME='변사또', BOARD_TITLE='두번째 글입니다.', BOARD_CONTENT='수정을 해보았습니다.'
+    WHERE CONTENT_IDX=2;
+
+    COMMIT;
+    ROLLBACK;
+
+    SELECT * FROM BOARD
+    WHERE WRITER_NAME LIKE '%테%' OR BOARD_TITLE LIKE '%테%' OR BOARD_CONTENT LIKE '%테%'
+    ORDER BY CONTENT_IDX DESC;
+
+    SELECT * FROM BOARD
+    WHERE WRITER_NAME LIKE '%'||#{searchWord}||'$' OR BOARD_TITLE LIKE '%'||#{searchWord}||'$' OR BOARD_CONTENT LIKE '%'||#{searchWord}||'$'
+    ORDER BY CONTENT_IDX DESC;
+
+    DELETE FROM BOARD WHERE CONTENT_IDX=8;
+
+    -- 총글수 : TOTAL COUTN 구하기
+    SELECT COUNT(*) FROM BOARD;
+
+    -- 페이징 쿼리(hint활용)
+    SELECT A.*
+    FROM(SELECT /*+INDEX_DESC(BOARD) */ ROWNUM AS RN, BOARD.* FROM BOARD WHERE BOARD_NUM=3)A
+    WHERE RN BETWEEN 1 AND 10;
+
+    COMMIT;
+
+    ---------------------------------------
+
+    SELECT CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT, BOARD_DATE, BOARD_HIT
+    FROM(SELECT /*+INDEX_DESC(BOARD) */ ROWNUM AS RN, BOARD.* FROM BOARD
+    WHERE WRITER_NAME LIKE '%제목%' OR BOARD_TITLE LIKE '%제목%' OR BOARD_CONTENT LIKE '%제목%')
+    WHERE RN BETWEEN 1 AND 10;
+
+    -- 매퍼에서
+    SELECT CONTENT_IDX, BOARD_NUM, WRITER_NAME, BOARD_TITLE, BOARD_CONTENT, BOARD_DATE, BOARD_HIT
+    FROM(SELECT /*+INDEX_DESC(BOARD) */ ROWNUM AS RN, BOARD.* FROM BOARD
+    WHERE WRITER_NAME LIKE '%'||#{searchWord}||'%' OR BOARD_TITLE LIKE '%'||#{searchWord}||'%' OR BOARD_CONTENT LIKE '%'||#{searchWord}||'%')
+    WHERE RN BETWEEN #{param1} AND #{param2};
+    -----------------------------------------------------------------------
+    DELETE FROM REPLY WHERE REPLY_IDX=1;

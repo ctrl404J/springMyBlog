@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<head th:replace="fragments/header.html">
+    <meta charset="UTF-8">
+</head>
+
+<body>
+
+<script>
+    /* 댓글 리스트 Ajax */
+
+    var replyService = (
+        function() {
+            /* 댓글 리스트 가져오기*/
+            function replyList() {
+                var content_idx = $('#contentIdx').val();
+                $.ajax({
+                    url: 'replyList',
+                    type: 'GET',
+                    data: {
+                        'content_idx': content_idx
+                    },
+                    async: 'true',
+                    success: function(data) {
+                        data.replyList = data.replyList.reverse();
+                        var html = "";
+                        html += '<span>' + data.msg + '</span><br>';
+                        html += '<hr style="color:#DEE2E6;">';
+                        for (var i = 0; i < data.replyList.length; i++) {
+                            var relist = data.replyList[i];
+                            html += '<div id="reply_idq'+relist.reply_idx+'">';
+                            html += '<b>' + relist.reply_name + '</b>';
+                            html += '<span class="abc" style="float:right">';
+                            html += '<form style="display:inline;">';
+                            html += '<button type="button" class="btn btn-link" onclick="replyService.replyUpForm('+relist.reply_idx+',\'' +relist.reply_name+ '\',\'' +relist.reply_content+ '\');">수정</button>'
+                            html += '</form>';
+                            html += '<form style="display:inline;">';
+                            html += '<button type="button" class="btn btn-link" onclick="replyService.deleteReply('+relist.reply_idx+');">삭제</button>'
+                            html += '</form>';
+                            html += '</span>';
+                            html += '<p>' + relist.reply_content + '</p>';
+
+                            html += '</div>';
+
+                            html += '<hr style="color:#DEE2E6;">';
+                        }
+                        $('#replyDiv').html(html);
+                    },
+                    error: function() {
+                        alert('error');
+                    }
+                });
+            };
+            /* 댓글 삭제*/
+            function deleteReply(reply_idx){
+
+                $.ajax({
+                    url:'deleteReply',
+                    type:'POST',
+                    data:{'reply_idx':reply_idx},
+                    async:'true',
+                    success:function(data){
+                        if(data==1){
+                        alert('댓글 삭제성공!');
+                        replyService.getReplyList();
+                        }
+                    },
+                    error:function(data){
+                        alert('댓글 삭제실패!');
+                    }
+                });
+            };
+            /* 댓글 수정폼 이동*/
+            function replyUpForm(reply_idx, reply_name, reply_content){
+
+                var html = "";
+                    html += '<div class="mb-3" id="replyIdq'+reply_idx+'">';
+                    html += '<b>'+reply_name+'</b>';
+                    html += '<input type="hidden" id="reply_idw" value="'+reply_idx+'">';
+                    html += '<textarea class="form-control" id="replyUpCon" rows="3" name="reply_content">' + reply_content + '</textarea>';
+                    html += '<button type="button" id="savaUpBtn" class="btn btn-sm btn-primary" style="width: 10%; margin-top: 10px;" >저장</button>&nbsp;&nbsp;';
+                    html += '<button type="button" class="btn btn-sm btn-primary" style="width: 10%; margin-top: 10px;" onclick="replyService.getReplyList();">취소</button>';
+                    html += '</div>';
+                $('#reply_idq'+reply_idx).replaceWith(html);
+
+                /* 댓글 수정폼에서 저장버튼 클릭이벤트*/
+                $('#savaUpBtn').on('click', function(){
+                    var replyIdw = $('#reply_idw').val();
+                    var replyContent = $('#replyUpCon').val();
+
+                    $.ajax({
+                            url:'updateReply',
+                            type:'POST',
+                            data:{"reply_idx":replyIdw, "reply_content":replyContent},
+                            async:'true',
+                            success:function(data){
+                                alert('댓글 수정성공!');
+                                replyService.getReplyList();
+                            },
+                            error:function(){
+                                alert('댓글 수정실패!');
+                            }
+                        })
+                });
+            };
+
+
+            return {
+                getReplyList: replyList,
+                deleteReply:deleteReply,
+                replyUpForm:replyUpForm
+
+            }
+        }
+    )();
+$(function(){
+    replyService.getReplyList();
+});
+</script>
+
+<input type="hidden" th:value="${list.content_idx}" id="contentIdx">
+
+<h3 style="text-align:center; padding:20px;">상세정보</h3>
+<div style="width:50%; margin: auto;" class="my-3 p-3 bg-white rounded shadow-sm">
+    <div class="mb-3">
+        <label for="board_num" class="form-label">메뉴:</label>
+        <select class="form-select" aria-label="Default select example" id="board_num" name="board_num">
+            <option value="1" >JAVA</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="writer_name" class="form-label">이름:</label>
+        <input type="text" class="form-control" id="writer_name" th:value="${list.writer_name}" readonly>
+    </div>
+    <div class="mb-3">
+        <label for="board_title" class="form-label">제목:</label>
+        <input type="text" class="form-control" id="board_title" th:value="${list.board_title}" readonly>
+    </div>
+    <div class="mb-3">
+        <label for="board_content" class="form-label">내용:</label>
+        <textarea class="form-control" id="board_content" rows="8" th:text="${list.board_content}" readonly></textarea>
+    </div>
+
+    <div class="mb-3">
+        <button type="button" class="btn btn-primary" th:onclick="|location.href='@{updateForm/{content_idx}(content_idx=${list.content_idx})}'|">수정</button>
+        <!-- 주소줄의 오입력으로 인한 잘못된 삭제를 방지하기 위해 POST방식 사용.-->
+        <form action="deleteAction" method="POST" style="display:inline;">
+            <input type="hidden" name="content_idx" th:value="${list.content_idx}">
+            <button type="submit" class="btn btn-primary">삭제</button>
+        </form>
+        <button type="button" class="btn btn-primary" onclick="location.href='javascript:history.back();'">취소</button>
+    </div>
+    <hr style="color:#DEE2E6;">
+</div>
+<!-- 댓글쓰기 창 -->
+
+<div class="my-3 p-3 bg-white rounded shadow-sm" style="padding-top: 10px; width:50%; margin:auto;">
+
+    <div class="row">
+        <div class="col-sm-10">
+            <textarea name="reply_content" id="reply_content" class="form-control" rows="3" placeholder="댓글을 입력해 주세요."></textarea>
+        </div>
+        <div class="col-sm-2">
+            <input type="text" name="reply_name" id="reply_name" class="form-control" placeholder="작성자">
+
+            <button id="smBtn" type="button" class="btn btn-sm btn-primary" style="width: 100%; margin-top: 10px">작성</button>
+        </div>
+    </div>
+
+</div>
+<!-- 교체할 댓글 내용--->
+
+<!-- 댓글 리스트-->
+<div class="my-3 p-3 bg-white rounded shadow-sm" style="width:50%; margin: auto;" id="replyDiv">
+</div>
+
+<script>
+    /* 댓글 작성*/
+    $('#smBtn').on('click', function() {
+
+        var reply_name = $('#reply_name').val().trim();
+        var reply_content = $('#reply_content').val().trim();
+        var reply_board_idx = $('#contentIdx').val();
+
+        $.ajax({
+            url: 'saveReply',
+            type: 'POST',
+            data: {
+                'reply_name': reply_name,
+                'reply_content': reply_content,
+                'reply_board_idx': reply_board_idx
+            },
+            async: 'true',
+            success: function(data) {
+
+                if (data == 1) {
+                    replyService.getReplyList();
+                    $('#reply_content').val(null);
+                    $('#reply_name').val(null);
+                };
+            },
+            error: function() {
+                alert('error');
+            }
+        });
+    });
+</script>
+
+
+</body>
+<footer th:replace="fragments/footer.html"></footer>
+</html>

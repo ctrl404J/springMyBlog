@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blog.myBlog.dao.UserDao">
+    <!-- 회원가입 -->
+    <insert id="joinAction">
+    INSERT INTO USERLIST(USER_IDX, USER_ID, USER_NAME, USER_PASS, USER_Q, USER_A)
+    VALUES(USER_SEQ.NEXTVAL, #{user_id}, #{user_name}, #{user_pass}, #{user_q}, #{user_a})
+    </insert>
+
+    <!-- 아이디 유무확인 -->
+    <select id="idCheck" resultType="com.blog.myBlog.dto.UserDto">
+        SELECT * FROM USERLIST
+        WHERE USER_ID=#{user_id}
+    </select>
+
+    <select id="findPass" resultType="String">
+        SELECT USER_PASS FROM USERLIST
+        WHERE USER_A=#{user_a} AND USER_ID=#{user_id} AND USER_NAME=#{user_name}
+    </select>
+</mapper>
