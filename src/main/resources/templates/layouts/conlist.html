@@ -17,7 +17,7 @@
     <thead>
     <tr>
         <th scope="col">번호</th>
-        <th scope="col">목록</th>
+       <!--<th scope="col">목록</th>-->
         <th scope="col">이름</th>
         <th scope="col">제목</th>
         <th scope="col">날짜</th>
@@ -27,7 +27,7 @@
     <tbody>
     <tr th:each="list:${list}">
         <th th:text="${list.content_idx}">Mark</th>
-        <th th:text="${list.board_num}">Mark</th>
+        <!--<th th:text="${list.board_num}">Mark</th>-->
         <td th:text="${list.writer_name}">Mark</td>
         <td><a th:text="${list.board_title}" th:href="@{/contentForm?content_idx={content_idx}(content_idx=${list.content_idx})}">Mark</a></td>
         <td th:text="${#dates.format(list.board_date, 'yyyy-MM-dd HH:mm:ss')}">Mark</td>

@@ -82,4 +82,11 @@ public class UserController {
         String userPass = userDao.findPass(userDto);
         return "비밀번호는:"+userPass;
     }
+
+    // 로그아웃
+    @GetMapping("logout")
+    public String logout(HttpSession session){
+        session.invalidate();
+        return "redirect:/";
+    }
 }

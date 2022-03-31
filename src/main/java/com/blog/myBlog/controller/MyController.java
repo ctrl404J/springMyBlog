@@ -142,12 +142,12 @@ public class MyController {
     }
 
     // 글삭제
-    @PostMapping("/deleteAction")
+    @PostMapping("deleteAction")
     @ResponseBody
-    public String deleteAction(int content_idx){
+    public int deleteAction(int content_idx){
         log.info("삭제글번호:{}", content_idx);
         int result = blogDao.deleteAction(content_idx);
-        return "<script>alert('글삭제 성공!'); location.href='javascript:history.go(-2)'; </script>;";
+        return result;
     }
 
     // 검색
@@ -186,5 +186,6 @@ public class MyController {
 
         return "layouts/searchList";
     }
+
 
 }

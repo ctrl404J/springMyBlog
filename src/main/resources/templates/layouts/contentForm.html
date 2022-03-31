@@ -9,7 +9,6 @@
 
 <script>
     /* 댓글 리스트 Ajax */
-
     var replyService = (
         function() {
             /* 댓글 리스트 가져오기*/
@@ -54,7 +53,6 @@
             };
             /* 댓글 삭제*/
             function deleteReply(reply_idx){
-
                 $.ajax({
                     url:'deleteReply',
                     type:'POST',
@@ -145,14 +143,37 @@ $(function(){
     <div class="mb-3">
         <button type="button" class="btn btn-primary" th:onclick="|location.href='@{updateForm/{content_idx}(content_idx=${list.content_idx})}'|">수정</button>
         <!-- 주소줄의 오입력으로 인한 잘못된 삭제를 방지하기 위해 POST방식 사용.-->
-        <form action="deleteAction" method="POST" style="display:inline;">
+        <form style="display:inline;">
             <input type="hidden" name="content_idx" th:value="${list.content_idx}">
-            <button type="submit" class="btn btn-primary">삭제</button>
+            <button type="button" id="delBtn" class="btn btn-primary">삭제</button>
         </form>
         <button type="button" class="btn btn-primary" onclick="location.href='javascript:history.back();'">취소</button>
     </div>
     <hr style="color:#DEE2E6;">
 </div>
+<script>
+    $('#delBtn').on('click', function(){
+        var contentIdx = $('input[name=content_idx]').val();
+        
+        $.ajax({
+            url:'deleteAction',
+            type:'POST',
+            data:{"content_idx":contentIdx},
+            async:'true',
+            success:function(data){
+                if(data==1){
+                    alert('게시글 삭제성공!');
+
+                    location.href="javascript:history.back();";
+                }
+            },
+            error:function(){
+                alert('게시글 삭제실패!');
+            }
+        })
+    });
+</script>
+
 <!-- 댓글쓰기 창 -->
 
 <div class="my-3 p-3 bg-white rounded shadow-sm" style="padding-top: 10px; width:50%; margin:auto;">

@@ -33,18 +33,23 @@
                 </ul>
             </div>
         </div>
-        <div>
-            <div th:if="${#strings.isEmpty(session.userName)}" style=" margin:30px;">
+        <div >
+            <div th:if="${#strings.isEmpty(session.userName)}" style="margin:30px;">
                 <button class="btn btn-primary" th:onclick="|location.href='/login'|" style="width:80px;">로그인</button>
             </div>
-            <div th:unless="${#strings.isEmpty(session.userName)}">
-                <div class="container-fluid" style="width:250px;">
-                    <b><span th:text="|${session.userName}님 환영합니다.|"></span></b>
-                </div>
+
+            <div th:unless="${#strings.isEmpty(session.userName)}" >
+                    <table>
+                        <tr>
+                            <td style="width:300px;"><span th:text="|${session.userName}님 환영합니다.|" ></span></td>
+                            <td><button class="btn btn-primary" onclick="location.href='logout'" style="width:90px; margin:30px;">로그아웃</button></td>
+                        </tr>
+                    </table>
             </div>
         </div>
     </nav>
 </head>
+
 <body>
 <!-- 이미지 -->
 <div style="max-width: 100%; max-height:770px; margin:auto; overflow:hidden">
