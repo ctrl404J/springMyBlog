@@ -148,6 +148,7 @@ public class MyController {
         log.info("삭제글번호:{}", content_idx);
         int result = blogDao.deleteAction(content_idx);
         return result;
+
     }
 
     // 검색
