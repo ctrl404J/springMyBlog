@@ -6,4 +6,4 @@
 활용기술: SpringBoot, ThymeLeaf, JQuery, Ajax, BootStrap
 <br>
 <br>
-느낀점: Spring에 대해 더깊은 이해가 필요하고 JAVASCRIPT에 대한 심층공부가 더 필요함을 느꼈습니다.
+느낀점: Spring에 대해 더 깊은 이해가 필요하고 JAVASCRIPT에 대한 심층공부가 필요함을 느꼈습니다.
