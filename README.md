@@ -1,9 +1,5 @@
-<h3>Spring 개인프로젝트 소개</h3>
+<h3>SpringBoot コミュニティWeb Project(1人)</h3>
 <br>
+<br>紹介: Java、SpringBoot、myBatis、ThymeLeaf、JQuery、IntelliJ、BootStrapを活用して開発 <br>
 <br>
-개발의도: 메모기록 블로그 <br>
-<br>
-활용기술: SpringBoot, ThymeLeaf, JQuery, Ajax, BootStrap
-<br>
-<br>
-아직 지속적인 수정을 진행하고 있습니다.
+（会員登録、ログイン、書き込み投稿、修正、削除、検索機能、Paging機能、コメント機能など。）
